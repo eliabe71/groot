@@ -328,11 +328,12 @@ class RangeSliderUI extends BasicSliderUI {
         upperUnionRect.setBounds(upperThumbRect);
 
         upperThumbRect.setLocation(x, y);
-
-        SwingUtilities.computeUnion(upperThumbRect.x, upperThumbRect.y, upperThumbRect.width, upperThumbRect.height, upperUnionRect);
+        int X = upperThumbRect.x, y = upperThumbRect.y, w = upperThumbRect.width, h = upperThumbRect.height;
+        SwingUtilities.computeUnion(X, y, w, h, upperUnionRect);
         slider.repaint(upperUnionRect.x, upperUnionRect.y, upperUnionRect.width, upperUnionRect.height);
     }
     
+
     /**
      * Moves the selected thumb in the specified direction by a block increment.
      * This method is called when the user presses the Page Up or Down keys.
