@@ -14,8 +14,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.text.AttributedString;
 import org.jlab.groot.base.ColorPalette;
-
-import org.jlab.groot.base.TStyle;
+import javafx.util.Pair;
+import java.util.ArrayList;
 
 /**
  *
@@ -102,10 +102,10 @@ public class LatexText {
     }
     
     
-public void drawString(Graphics2D  g2d, int x, int y, int alignX, int alignY, int rotate){
+public void drawString(Graphics2D  g2d, Pair<Integer, Integer> pos, Pair<Integer, Integer> align, int rotate){
         
         if(rotate==LatexText.ROTATE_NONE){
-            this.drawString(g2d, x, y, alignX, alignY);
+            this.drawString(g2d, pos, align);
             return;
         }
         
@@ -113,12 +113,12 @@ public void drawString(Graphics2D  g2d, int x, int y, int alignX, int alignY, in
         Rectangle2D rect = fmg.getStringBounds(this.latexString.getIterator(), 0,
                 this.latexString.getIterator().getEndIndex(),g2d);
         
-        int posX = y;
-        int posY = x;
+        int posX = pos.getKey();
+        int posY = pos.getValue();
         
-        if(alignX==LatexText.ALIGN_CENTER) posX = posX + (int) (0.5*rect.getWidth());
+        if(align.getKey() ==LatexText.ALIGN_CENTER) posX = posX + (int) (0.5*rect.getWidth());
         //if(alignX==LatexText.ALIGN_LEFT)   posX = posX + (int) rect.getWidth();
-        if(alignY==LatexText.ALIGN_TOP)    posY = posY + (int) (rect.getHeight());
+        if(align.getValue()==LatexText.ALIGN_TOP)    posY = posY + (int) (rect.getHeight());
         //if(alignY==LatexText.ALIGN_CENTER)    posY = posY + (int) (0.5*rect.getHeight());
         AffineTransform orig = g2d.getTransform();
         g2d.rotate(-Math.PI/2);
@@ -127,19 +127,19 @@ public void drawString(Graphics2D  g2d, int x, int y, int alignX, int alignY, in
         g2d.setTransform(orig);
     }
     
-    public void drawString(Graphics2D  g2d, int x, int y, int alignX, int alignY){
+    public void drawString(Graphics2D  g2d, Pair<Integer, Integer> pos, Pair<Integer, Integer> align){
         FontMetrics fmg = g2d.getFontMetrics(new Font(this.textFamily,Font.BOLD,this.textFontSize));
         Rectangle2D rect = fmg.getStringBounds(this.latexString.getIterator(), 0,
                 this.latexString.getIterator().getEndIndex(),g2d);
         int  ascend   = fmg.getAscent();
         int leading   = fmg.getLeading();
         //System.out.println("ascend = " + ascend + " leading = " + leading);
-        int  xp     = x;
-        int  yp     = y + ascend;
-        if(alignX==1) xp = (int) (xp-0.5*rect.getWidth());
-        if(alignX==2) xp = (int) (xp-rect.getWidth());
-        if(alignY==1) yp = (int) (y + 0.5*(ascend));
-        if(alignY==2) yp = (int)  y;
+        int  xp     = pos.getKey();
+        int  yp     = pos.getValue() + ascend;
+        if(align.getKey()==1) xp = (int) (xp-0.5*rect.getWidth());
+        if(align.getKey()==2) xp = (int) (xp-rect.getWidth());
+        if(align.getValue()==1) yp = (int) (y + 0.5*(ascend));
+        if(align.getValue()==2) yp = (int)  y;
         g2d.setColor(latexTextColor);
         g2d.drawString(latexString.getIterator(), xp, yp);        
     }
