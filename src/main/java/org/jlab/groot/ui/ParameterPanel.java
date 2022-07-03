@@ -54,8 +54,7 @@ public class ParameterPanel extends JPanel{
 		this.setLayout(new GridLayout(fitFunction2.getNPars(),1));
 		initParameterPanel();
 	}
-	private void initParameterPanel(){
-		ArrayList<JCheckBox> parameterLimitedCheckboxes = new ArrayList<JCheckBox>();
+	private void intAllBounds(){
 		if(upperLim.size()!=this.fitFunction.getNPars()){
 			upperLim.clear();
 		}
@@ -64,7 +63,7 @@ public class ParameterPanel extends JPanel{
 		}
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		for(int i=0; i<fitFunction.getNPars(); i++){
 			c.gridy = i;
 			parameterLimited.add(new JCheckBox("Lim."));
@@ -76,7 +75,7 @@ public class ParameterPanel extends JPanel{
 			if(upperLim.size()!=this.fitFunction.getNPars()){
 				upperLim.add(new Double(fitFunction.parameter(i).value()*10.0));
 			}
-			
+
 			parameterValue.add(new JTextField(String.format("%4.2f", fitFunction.parameter(i).value())));
 			if(parameterLimited.get(i).isSelected()){
 				parameterMin.add(new JTextField(String.format("%4.2f", fitFunction.parameter(i).min())));
@@ -106,6 +105,12 @@ public class ParameterPanel extends JPanel{
 					}
 				}
 			});
+
+		}
+	}
+	private void initParameterPanel(){
+		ArrayList<JCheckBox> parameterLimitedCheckboxes = new ArrayList<JCheckBox>();
+		intAllBounds();
 			parameterMax.get(i).addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e){
 					JTextField textField = (JTextField) e.getSource();

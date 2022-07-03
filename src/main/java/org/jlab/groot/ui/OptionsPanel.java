@@ -72,6 +72,26 @@ public class OptionsPanel extends JPanel {
 		main.add(frameOptions,c);
 		tabbedPane.add("Main", main);
 	}
+	JComboBox initFontsBox(){
+		JComboBox fontsBox	= new JComboBox(systemFonts);
+		fontsBox.setSelectedIndex(0);
+		for(int i=0; i<systemFonts.length; i++){
+			if(can.getPad(pad).getAxisX().getTitleFont().getFontName().contains(systemFonts[i])){
+				fontsBox.setSelectedIndex(i);
+			}
+		}
+		return  fontsBox;
+	}
+	JComboBox initAxisFontSizeBox(JComboBox axisTitleFontSizeBox,JComboBox statBoxFontSizeBox){
+		JComboBox axisFontSizeBox	= new JComboBox(fontSize);
+		axisFontSizeBox.setSelectedItem(""+can.getPad(pad).getAxisX().getLabelFontSize());
+		axisTitleFontSizeBox.setSelectedItem(""+can.getPad(pad).getAxisX().getTitleFontSize());
+		JComboBox titleFontSizeBox 	= new JComboBox(fontSize);
+		titleFontSizeBox.setSelectedItem(""+can.getPad(pad).getTitleFontSize());
+		statBoxFontSizeBox.setSelectedItem(""+can.getPad(pad).getStatBoxFontSize());
+		return  axisFontSizeBox;
+	}
+
 	private void initAxisOptions(JPanel axisOptions){
 		JCheckBox[] applyToAllCheckBoxes;
 		RangeSlider xSlider, ySlider;
@@ -87,31 +107,13 @@ public class OptionsPanel extends JPanel {
 		String[] fillColor 		= {"34","35","36","37","38"};
 		String[] colors 		= {"1","2","3","4","5","6","7","8","9"};
 		String[] colorNames 	= {"Black","White","Red","Green","Blue","Yellow","Magenta","Cyan","Dark Green","Purple-ish"};
-		//String[] fontSize 		= {"6","8","10","12","14","16","18","24","36","48"};
-		//int[] fontSizeInts 		= {6,8,10,12,14,16,18,24,36,48};
 		String[] translucency = {"100%","80%","60%","40%","20%"};
-		
-		//JComboBox lineWidthBox = new JComboBox(lineThickness);
-		JComboBox fontsBox	= new JComboBox(systemFonts);
-		fontsBox.setSelectedIndex(0);
-		for(int i=0; i<systemFonts.length; i++){
-			if(can.getPad(pad).getAxisX().getTitleFont().getFontName().contains(systemFonts[i])){
-				fontsBox.setSelectedIndex(i);
-			}
-		}
-		JComboBox axisFontSizeBox	= new JComboBox(fontSize);
-		axisFontSizeBox.setSelectedItem(""+can.getPad(pad).getAxisX().getLabelFontSize());
+
+		JComboBox fontsBox	= initFontsBox();
 		JComboBox axisTitleFontSizeBox = new JComboBox(fontSize);
-		axisTitleFontSizeBox.setSelectedItem(""+can.getPad(pad).getAxisX().getTitleFontSize());
-		JComboBox titleFontSizeBox 	= new JComboBox(fontSize);
-		titleFontSizeBox.setSelectedItem(""+can.getPad(pad).getTitleFontSize());
 		JComboBox statBoxFontSizeBox 	= new JComboBox(fontSize);
-		statBoxFontSizeBox.setSelectedItem(""+can.getPad(pad).getStatBoxFontSize());
+		JComboBox axisFontSizeBox	= initAxisFontSizeBox(axisTitleFontSizeBox,statBoxFontSizeBox);
 
-
-		//JComboBox fillColorBox = new JComboBox(fillColor);
-		
-		//JLabel lineWidthLabel = new JLabel("Line Width");
 		JLabel fontLabel 	            = new JLabel("Font:");
 		JLabel axisFontSizeLabel     	= new JLabel("Axis Label Font Size:");
 		JLabel axisTitleFontSizeLabel 	= new JLabel("Axis Title Font Size:");
@@ -126,15 +128,7 @@ public class OptionsPanel extends JPanel {
 		JTextField xAxisTextField 	= new JTextField(can.getPad(pad).getAxisX().getTitle());
 		JTextField yAxisTextField 	= new JTextField(can.getPad(pad).getAxisY().getTitle());
 		JTextField titleTextField 	= new JTextField(can.getPad(pad).getTitle());
-		/*xAxisTextField.addKeyListener(new KeyListener(){
-			 public void keyTyped(KeyEvent e) {
-				 canvas.getPad(index).getAxisX().setTitle(xAxisTextField.getText());
-					canvas.update();			   
-				}
-		});*/
-		
 
-		
 		JPanel gridPanel = new JPanel(new GridLayout(1,2));
 		JCheckBox xGridBox = new JCheckBox("Grid X");
 		xGridBox.setSelected(can.getPad(pad).getAxisX().getGrid());
@@ -166,18 +160,18 @@ public class OptionsPanel extends JPanel {
 		}
 		JComboCheckBox applyToAllComboCheckBox = new JComboCheckBox(applyToAllCheckBoxes);
 		JToggleButton applyToAllButton = new JToggleButton("Apply To All");
-		ActionListener applyToAllListener = new ActionListener(){
+		ActionListener applyToAllListener =new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				if(applyToAllButton.isSelected()){
 					if(applyToAllCheckBoxes[0].isSelected()){
 						can.setFont(systemFonts[fontsBox.getSelectedIndex()]);
-					} 
+					}
 					if(applyToAllCheckBoxes[1].isSelected()){
-						can.setTitleSize(Integer.parseInt(fontSize[titleFontSizeBox.getSelectedIndex()]));
+						can.setTitleSize(Integer.parseInt(fontSize[axisTitleFontSizeBox.getSelectedIndex()]));
 					}
 					if(applyToAllCheckBoxes[2].isSelected()){
 						can.setAxisLabelSize(Integer.parseInt(fontSize[axisFontSizeBox.getSelectedIndex()]));
-					} 
+					}
 					if(applyToAllCheckBoxes[3].isSelected()){
 						can.setAxisTitleSize(Integer.parseInt(fontSize[axisTitleFontSizeBox.getSelectedIndex()]));
 					}
@@ -199,14 +193,6 @@ public class OptionsPanel extends JPanel {
 					if(applyToAllCheckBoxes[9].isSelected()){
 						can.setGridY(yGridBox.isSelected());
 					}
-					
-					/*
-					if(applyToAllCheckBoxes[10].isSelected()){
-						canvas.getPad(i).setAxisRange("X",xSlider.getValue() * (xMax-xMin)/(double)(xSliderMax-xSliderMin) +xMin, xSlider.getUpperValue()* (xMax-xMin)/(double)(xSliderMax-xSliderMin)+xMin);
-					}
-					if(applyToAllCheckBoxes[11].isSelected()){
-						canvas.getPad(i).setAxisRange("Y",ySlider.getValue() * (yMax-yMin)/(double)(ySliderMax-ySliderMin) +yMin, ySlider.getUpperValue()* (yMax-yMin)/(double)(ySliderMax-ySliderMin)+yMin);
-					}*/
 					can.update();
 				}
 			}
@@ -411,76 +397,6 @@ public class OptionsPanel extends JPanel {
 		optionsPanel.add(applyToAllComboCheckBox,c);
 		optionsPanel.add(applyToAllButton,c);
 		axisOptions.add(optionsPanel, BorderLayout.PAGE_START);
-/*
-		JPanel rangePanel = new JPanel(new GridBagLayout());
-		GridBagConstraints rangeConstraints = new GridBagConstraints();
-		rangeConstraints.fill = GridBagConstraints.HORIZONTAL;
-		JPanel xRangePanel =new JPanel(new FlowLayout());
-		JPanel yRangePanel =new JPanel(new FlowLayout());
-
-		rangePanel.setBorder(new TitledBorder("Range"));
-		JLabel xrangeSliderValue1 = new JLabel(""+String.format("%4.2f",xMin));
-		JLabel xrangeSliderValue2 = new JLabel(""+String.format("%4.2f",xMax));
-		JLabel xAxisLabel = new JLabel("X:");
-		
-		//x axis
-		xSlider = new RangeSlider();
-		xSlider.setMinimum(xSliderMin);
-		xSlider.setMaximum(xSliderMax);
-		xSlider.setValue(xSliderMin);
-		xSlider.setUpperValue(xSliderMax);
-		rangeConstraints.gridy=0;
-		//rangeConstraints.weightx = 0.5;
-		rangePanel.add(xAxisLabel,rangeConstraints);
-		rangePanel.add(xrangeSliderValue1,rangeConstraints);
-		//rangeConstraints.weightx = 0.0;
-		rangePanel.add(xSlider,rangeConstraints);
-		//rangeConstraints.weightx = 0.5;
-		rangePanel.add(xrangeSliderValue2,rangeConstraints);
-		
-		xSlider.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				RangeSlider slider = (RangeSlider) e.getSource();
-				xrangeSliderValue1.setText(String.valueOf(""+String.format("%4.2f",slider.getValue() * (xMax-xMin)/(double)(xSliderMax-xSliderMin)+xMin)));
-				xrangeSliderValue2.setText(String.valueOf(""+String.format("%4.2f",slider.getUpperValue() *(xMax-xMin)/(double)(xSliderMax-xSliderMin)+xMin)));
-				canvas.getPad(index).setAxisRange("X",slider.getValue() * (xMax-xMin)/(double)(xSliderMax-xSliderMin)+xMin , slider.getUpperValue()* (xMax-xMin)/(double)(xSliderMax-xSliderMin)+xMin);
-				//canvas.repaint();
-				canvas.update();
-			}
-		});
-		
-		//y axis
-		JLabel yAxisLabel = new JLabel("Y:");
-		JLabel yrangeSliderValue1 = new JLabel(""+String.format("%4.2f",yMin));
-		JLabel yrangeSliderValue2 = new JLabel(""+String.format("%4.2f",yMax));
-		ySlider = new RangeSlider();
-		ySlider.setMinimum(ySliderMin);
-		ySlider.setMaximum(ySliderMax);
-		ySlider.setValue(ySliderMin);
-		ySlider.setUpperValue(ySliderMax);
-		rangeConstraints.gridy=1;
-		//rangeConstraints.weightx = 0.5;
-		rangePanel.add(yAxisLabel,rangeConstraints);
-		rangePanel.add(yrangeSliderValue1,rangeConstraints);
-		//rangeConstraints.weightx = 0.0;
-		rangePanel.add(ySlider,rangeConstraints);
-		rangePanel.add(yrangeSliderValue2,rangeConstraints);
-		
-		ySlider.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				RangeSlider slider = (RangeSlider) e.getSource();
-				yrangeSliderValue1.setText(String.valueOf(""+String.format("%4.2f",slider.getValue() * (yMax-yMin)/(double)(ySliderMax-ySliderMin)+yMin)));
-				yrangeSliderValue2.setText(String.valueOf(""+String.format("%4.2f",slider.getUpperValue() *(yMax-yMin)/(double)(ySliderMax-ySliderMin)+yMin)));
-				canvas.getPad(index).setAxisRange("Y",slider.getValue() * (yMax-yMin)/(double)(ySliderMax-ySliderMin)+yMin , slider.getUpperValue()* (yMax-yMin)/(double)(ySliderMax-ySliderMin)+yMin);
-				//canvas.repaint();
-				canvas.update();
-			}
-		});
-		
-		//rangePanel.add(xRangePanel);
-		//rangePanel.add(yRangePanel);
-		axisOptions.add(rangePanel, BorderLayout.PAGE_END);
-		*/
 	}
 	
 	protected void applyToAll() {

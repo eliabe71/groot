@@ -96,60 +96,22 @@ public class CutPanel extends JPanel {
 		this.validateExpression();
 	}
 
-	@SuppressWarnings("unchecked")
-	private void init() {
-		try {
-			Image checkImage = ImageIO.read(Tree.class.getClassLoader().getResource("icons/general/checkmark.png"));
-			Image xImage = ImageIO.read(Tree.class.getClassLoader().getResource("icons/general/xmark.png"));
-			checkIcon = new ImageIcon(checkImage.getScaledInstance(iconSizeX, iconSizeY, Image.SCALE_SMOOTH));
-			xIcon = new ImageIcon(xImage.getScaledInstance(iconSizeX, iconSizeY, Image.SCALE_SMOOTH));
-		} catch (Exception e) {
 
+	void initVariables(int i){
+		if(i ==1 ){
+			cutMap = tree.getSelector().getSelectorCuts();
+			cutStrings = new ArrayList<String>();
+			return;
 		}
-		
-		cutMap = tree.getSelector().getSelectorCuts();
-		cutStrings = new ArrayList<String>();
-		Object[] keys = cutMap.keySet().toArray();
-		Object[] treeCuts = cutMap.values().toArray();
-		for (int i = 0; i < cutMap.keySet().size(); i++) {
-			cutStrings.add((String) keys[i]);
+		if(i ==2){
+			validationPlaceHolder = new JLabel(xIcon);
+			cutNameTextField.setText(name);
 		}
-		validationPlaceHolder = new JLabel(xIcon);
-		cutNameTextField.setText(name);
-		for (int i = 0; i < branches.size(); i++) {
-			branchVariableSelector.addItem(branches.get(i));
-		}
-		for (int i = 0; i < operators.length; i++) {
-			cutOperator.addItem(operators[i]);
-		}
-		JButton addCutButton = new JButton("Add to Cut");
-
-		addCutButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
-
-		//cutTextArea.setPreferredSize(new Dimension(200, 100));
 		cutTextArea.setColumns(20);
 		cutTextArea.setText(cutString);
-		JButton saveButton = new JButton("Apply");
-		leftPanel.setLayout(new GridBagLayout());
-		//this.setLayout(new GridBagLayout());
-		JPanel nameExpressionPanel = new JPanel(new GridBagLayout());
-		nameExpressionPanel.setBorder(new TitledBorder("Cut Definition"));
-		GridBagConstraints c4 = new GridBagConstraints();
-		c4.fill = GridBagConstraints.HORIZONTAL;
-		c4.weightx = 1.0;
-		c4.weighty = 1.0;
-		cutValueTextField.setColumns(6);
+	}
+	void initVariblesBox(){
 
-		int gridInt = 0;
-		c4.gridwidth = 2;
-		c4.gridy = gridInt++;
-		nameExpressionPanel.add(new JLabel("Cut Name:"), c4);
-		c4.gridwidth = 4;
-		nameExpressionPanel.add(cutNameTextField, c4);
 		branchComboBox = new JComboBox(tree.getListOfBranches().toArray());
 		branchComboBox.setMaximumSize(new Dimension(52, branchComboBox.getPreferredSize().height));
 		branchComboBox.setPreferredSize(new Dimension(52, branchComboBox.getPreferredSize().height));
@@ -158,17 +120,6 @@ public class CutPanel extends JPanel {
 			cutTextArea.setText(cutTextArea.getText() + branchComboBox.getSelectedItem());
 			this.validateExpression();
 		});
-
-		c4.gridy = gridInt++;
-		c4.fill = GridBagConstraints.HORIZONTAL;
-		c4.gridwidth = 2;
-		nameExpressionPanel.add(new JLabel("Cut Expression:"), c4);
-		c4.gridwidth = 3;
-		// c.anchor = GridBagConstraints.HORIZONTAL;
-		nameExpressionPanel.add(cutTextArea, c4);
-		c4.gridwidth = 1;
-		nameExpressionPanel.add(branchComboBox, c4);
-		nameExpressionPanel.add(validationPlaceHolder, c4);
 		cutTextArea.addKeyListener(new KeyListener() {
 
 			@Override
@@ -190,8 +141,71 @@ public class CutPanel extends JPanel {
 			}
 
 		});
-		
-		
+	}
+	void initBranches(){
+		for (int i = 0; i < branches.size(); i++) {
+			branchVariableSelector.addItem(branches.get(i));
+		}
+	}
+	void initOperators(){
+		for (int i = 0; i < operators.length; i++) {
+			cutOperator.addItem(operators[i]);
+		}
+	}
+	JButton initButton(){
+		JButton addCutButton = new JButton("Add to Cut");
+
+		addCutButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		return  addCutButton;
+	}
+	@SuppressWarnings("unchecked")
+	private void init() {
+		try {
+			Image checkImage = ImageIO.read(Tree.class.getClassLoader().getResource("icons/general/checkmark.png"));
+			Image xImage = ImageIO.read(Tree.class.getClassLoader().getResource("icons/general/xmark.png"));
+			checkIcon = new ImageIcon(checkImage.getScaledInstance(iconSizeX, iconSizeY, Image.SCALE_SMOOTH));
+			xIcon = new ImageIcon(xImage.getScaledInstance(iconSizeX, iconSizeY, Image.SCALE_SMOOTH));
+		} catch (Exception e) {
+
+		}
+		initVariables(1);
+		Object[] keys = cutMap.keySet().toArray();
+		for (int i = 0; i < cutMap.keySet().size(); i++) {
+			cutStrings.add((String) keys[i]);
+		}
+		initVariables(2);
+		initBranches();
+		initOperators();
+		initVariables(3);
+		JButton saveButton = new JButton("Apply");
+		leftPanel.setLayout(new GridBagLayout());
+		JPanel nameExpressionPanel = new JPanel(new GridBagLayout());
+		nameExpressionPanel.setBorder(new TitledBorder("Cut Definition"));
+		GridBagConstraints c4 = new GridBagConstraints();
+		c4.fill = GridBagConstraints.HORIZONTAL;
+		c4.weightx = 1.0;
+		c4.weighty = 1.0;
+		cutValueTextField.setColumns(6);
+
+		int gridInt = 0;
+		c4.gridwidth = 2;
+		c4.gridy = gridInt++;
+		nameExpressionPanel.add(new JLabel("Cut Name:"), c4);
+		c4.gridwidth = 4;
+		nameExpressionPanel.add(cutNameTextField, c4);
+		initVariblesBox();
+		c4.gridy = gridInt++;
+		c4.fill = GridBagConstraints.HORIZONTAL;
+		c4.gridwidth = 2;
+		nameExpressionPanel.add(new JLabel("Cut Expression:"), c4);
+		c4.gridwidth = 3;
+		nameExpressionPanel.add(cutTextArea, c4);
+		c4.gridwidth = 1;
+		nameExpressionPanel.add(branchComboBox, c4);
 		JPanel previewOptions = new JPanel(new GridBagLayout());
 		GridBagConstraints cPreview = new GridBagConstraints();
 		cPreview.fill = GridBagConstraints.BOTH;
@@ -203,9 +217,7 @@ public class CutPanel extends JPanel {
 		JComboBox previewOptionBox = new JComboBox(previewOptionsList);
 		previewOptions.add(previewCheckBox,cPreview);
 		previewOptions.add(previewOptionBox, cPreview);
-		
-		
-		
+
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1.0;
@@ -219,9 +231,7 @@ public class CutPanel extends JPanel {
 			leftPanel.add(this.cutOptions, c);
 		}
 		c.gridy++;
-		//leftPanel.add(previewOptions, c);
-		// c.anchor = GridBagConstraints.EAST;
-		
+
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints c2 = new GridBagConstraints();
 		c2.fill = GridBagConstraints.HORIZONTAL;
@@ -229,10 +239,7 @@ public class CutPanel extends JPanel {
 		c2.weighty = 1.0;
 		c2.gridwidth=2;
 		c2.gridy=0;
-		//c2.gridx=0;
 		this.add(leftPanel, c2);
-		//c2.gridx++;
-		//this.add(this.previewCanvas, c2);
 		c2.gridx=0;
 		c2.gridwidth=1;
 		c2.gridy++;
@@ -252,7 +259,6 @@ public class CutPanel extends JPanel {
 				SwingUtilities.getWindowAncestor(cutNameTextField).dispose();
 			}
 		});
-
 	}
 	
 	private void initCutOptions() {

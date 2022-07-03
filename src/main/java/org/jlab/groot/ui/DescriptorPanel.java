@@ -327,29 +327,7 @@ public class DescriptorPanel extends JPanel {
 		}
 	}
 
-	private void initHistogramOptions() {
-		branches = (ArrayList<String>) tree.getListOfBranches();
-		/*
-		 * for(int i=0; i<branches.size(); i++){
-		 * branchVariableSelectorX.addItem(branches.get(i));
-		 * branchVariableSelectorY.addItem(branches.get(i)); }
-		 */
-		branchComboBoxX = new JComboBox(tree.getListOfBranches().toArray());
-		branchComboBoxX.setMaximumSize(new Dimension(52, branchComboBoxX.getPreferredSize().height));
-		branchComboBoxX.setPreferredSize(new Dimension(52, branchComboBoxX.getPreferredSize().height));
-		branchComboBoxX.setMinimumSize(new Dimension(52, branchComboBoxX.getPreferredSize().height));
-		branchComboBoxX.addActionListener((e) -> {
-			branchVariableFieldX.setText(branchVariableFieldX.getText() + branchComboBoxX.getSelectedItem());
-			this.validateExpression(0);
-		});
-		branchComboBoxY = new JComboBox(tree.getListOfBranches().toArray());
-		branchComboBoxY.setMaximumSize(new Dimension(52, branchComboBoxY.getPreferredSize().height));
-		branchComboBoxY.setPreferredSize(new Dimension(52, branchComboBoxY.getPreferredSize().height));
-		branchComboBoxY.setMinimumSize(new Dimension(52, branchComboBoxY.getPreferredSize().height));
-		branchComboBoxY.addActionListener((e) -> {
-			branchVariableFieldY.setText(branchVariableFieldY.getText() + branchComboBoxY.getSelectedItem());
-			this.validateExpression(1);
-		});
+	private void setVariables(){
 		KeyListener binningListener = new KeyListener() {
 
 			@Override
@@ -371,7 +349,7 @@ public class DescriptorPanel extends JPanel {
 			}
 
 		};
-		/*this.branchVariableFieldX.setText("");
+			/*this.branchVariableFieldX.setText("");
 		this.branchVariableFieldY.setText("");
 		this.branchVariableFieldXerr.setText("");
 		this.branchVariableFieldYerr.setText("");*/
@@ -459,12 +437,40 @@ public class DescriptorPanel extends JPanel {
 
 		histogramOptions.setLayout(new GridBagLayout());
 		histogramOptions.setBorder(new TitledBorder("Histogram Options"));
+
+	}
+	private void initHistogramOptions() {
+		branches = (ArrayList<String>) tree.getListOfBranches();
+		/*
+		 * for(int i=0; i<branches.size(); i++){
+		 * branchVariableSelectorX.addItem(branches.get(i));
+		 * branchVariableSelectorY.addItem(branches.get(i)); }
+		 */
+		branchComboBoxX = new JComboBox(tree.getListOfBranches().toArray());
+		branchComboBoxX.setMaximumSize(new Dimension(52, branchComboBoxX.getPreferredSize().height));
+		branchComboBoxX.setPreferredSize(new Dimension(52, branchComboBoxX.getPreferredSize().height));
+		branchComboBoxX.setMinimumSize(new Dimension(52, branchComboBoxX.getPreferredSize().height));
+		branchComboBoxX.addActionListener((e) -> {
+			branchVariableFieldX.setText(branchVariableFieldX.getText() + branchComboBoxX.getSelectedItem());
+			this.validateExpression(0);
+		});
+		branchComboBoxY = new JComboBox(tree.getListOfBranches().toArray());
+		branchComboBoxY.setMaximumSize(new Dimension(52, branchComboBoxY.getPreferredSize().height));
+		branchComboBoxY.setPreferredSize(new Dimension(52, branchComboBoxY.getPreferredSize().height));
+		branchComboBoxY.setMinimumSize(new Dimension(52, branchComboBoxY.getPreferredSize().height));
+		branchComboBoxY.addActionListener((e) -> {
+			branchVariableFieldY.setText(branchVariableFieldY.getText() + branchComboBoxY.getSelectedItem());
+			this.validateExpression(1);
+		});
+
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1.0;
 		c.weighty = 1.0;
 		int gridy = 0;
 		c.gridy = gridy++;
+
+		this.setVariables();
 
 		if (type == DatasetDescriptor.DESCRIPTOR_H1) {
 			c.gridy = gridy++;
