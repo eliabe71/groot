@@ -303,7 +303,7 @@ public class DescriptorPanel extends JPanel {
 			JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
 			topFrame.pack();
 		}catch(Exception e){
-			
+			System.out.print(e);
 		}
 		initialized = true;
 	}

@@ -170,7 +170,7 @@ public class CutPanel extends JPanel {
 			checkIcon = new ImageIcon(checkImage.getScaledInstance(iconSizeX, iconSizeY, Image.SCALE_SMOOTH));
 			xIcon = new ImageIcon(xImage.getScaledInstance(iconSizeX, iconSizeY, Image.SCALE_SMOOTH));
 		} catch (Exception e) {
-
+			System.out.print(e);
 		}
 		initVariables(1);
 		Object[] keys = cutMap.keySet().toArray();
