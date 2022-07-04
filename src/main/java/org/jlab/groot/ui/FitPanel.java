@@ -147,8 +147,7 @@ public class FitPanel extends JPanel {
 		return tabbedPane;
 		// System.out.println("YES THIS IS THE CORRECT FILE");
 	}
-
-	private JPanel initFitFunction() {
+	private void initFunctions(){
 		fitFunctionPanel = new JPanel(new GridLayout(2, 1));
 		fitFunctionPanel.setBorder(new TitledBorder("Function Settings"));
 		xMin = canvas.getPad(index).getAxisX().getMin();
@@ -169,6 +168,26 @@ public class FitPanel extends JPanel {
 		predefinedFunctionsSelector = new JComboBox(predefFunctions);
 		predefinedFunctionsSelector.setSelectedIndex(0);
 		parameterPanel = new ParameterPanel(this.canvas, this.index, this.fitFunction);
+	}
+	private void setVariables(){
+		int validade = predefinedFunctionsSelector.getSelectedIndex();
+		for (int i = 0; i < fitFunction.getNPars(); i++) {
+			System.out.println("Paramter " + i + " =" + fitFunction.getParameter(i));
+			if(i == 2 && validade < 5){
+				fitFunction.setParLimits(2, 0.0, Double.MAX_VALUE);
+				continue;
+			}
+			if (i > 3) {
+				fitFunction.setParameter(i, 1.0);
+				continue;
+			}
+			fitFunction.setParameter(i,
+					getMaxYIDataSet(currentDataset, currentRangeMin, currentRangeMax));
+		}
+
+	}
+	private JPanel initFitFunction() {
+		initFunctions();
 		predefinedFunctionsSelector.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// System.out.println(predefinedFunctionsSelector.getSelectedIndex());
@@ -186,26 +205,7 @@ public class FitPanel extends JPanel {
 				}
 
 				if (predef) {
-					for (int i = 0; i < fitFunction.getNPars(); i++) {
-						if (i == 0) {
-							fitFunction.setParameter(0,
-									getMaxYIDataSet(currentDataset, currentRangeMin, currentRangeMax));
-						} else if (i == 1) {
-							fitFunction.setParameter(1,
-									getMeanIDataSet(currentDataset, currentRangeMin, currentRangeMax));
-						} else if (i == 2) {
-							fitFunction.setParameter(2,
-									getRMSIDataSet(currentDataset, currentRangeMin, currentRangeMax));
-							if (predefinedFunctionsSelector.getSelectedIndex() < 5)
-								fitFunction.setParLimits(2, 0.0, Double.MAX_VALUE);
-						} else if (i == 3) {
-							fitFunction.setParameter(3,
-									getAverageHeightIDataSet(currentDataset, currentRangeMin, currentRangeMax));
-						} else if (i > 3) {
-							fitFunction.setParameter(i, 1.0);
-						}
-						System.out.println("Paramter " + i + " =" + fitFunction.getParameter(i));
-					}
+					setVariables();
 				}
 				parameterPanel.updateNewFunction(fitFunction);
 				JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(predefinedFunctionsSelector);
@@ -222,25 +222,87 @@ public class FitPanel extends JPanel {
 		return fitFunctionPanel;
 	}
 
+	void changeOptions(){
+		int method = paramEstimationMethods.getSelectedIndex();
+		switch (method){
+			case 0:
+				options = "ER";
+				break;
+			case 1:
+				options = "NR";
+				break;
+			case 2:
+				options = "PR";
+				break;
+			case 3:
+				options = "R";
+				break;
+			case 4:
+				options = "LR";
+				break;
+			default:
+				break;
+		}
+	}
+	private void callFitFunction(){
+		int validate = predefinedFunctionsSelector.getSelectedIndex();
+		for (int i = 0; i < fitAllFitFunctions.get(padCounter).getNPars(); i++) {
+			if (i == 0) {
+				fitAllFitFunctions.get(padCounter).setParameter(0,
+						getMaxYIDataSet(currentDataset, min, max));
+				continue;
+			} else if (i == 1) {
+				fitAllFitFunctions.get(padCounter).setParameter(1,
+						getMeanIDataSet(currentDataset, min, max));
+				continue;
+			} else if (i == 2) {
+				fitAllFitFunctions.get(padCounter).setParameter(2,
+						getRMSIDataSet(currentDataset, min, max));
+				if (validate < 5)
+					fitFunction.setParLimits(2, 0.0, Double.MAX_VALUE);
+				continue;
+			} else if (i == 3) {
+				fitAllFitFunctions.get(padCounter).setParameter(3,
+						getAverageHeightIDataSet(currentDataset, min, max));
+				continue;
+			}
+			fitAllFitFunctions.get(padCounter).setParameter(i, 1.0);
+		}
+	}
+	private void setFilter(int padCounter, String   drawOption,double min,double max){
+
+		ArrayList<IDataSet> tempDataset = new ArrayList<IDataSet>();
+		int ndataset = canvas.getPad(padCounter).getDatasetPlotters().size();
+		for (int i = 0; i < ndataset; i++) {
+			IDataSet ds = canvas.getPad(padCounter).getDatasetPlotters().get(i).getDataSet();
+			String name = ds.getName();
+			dataSetNames.add(name);
+			tempDataset.add(ds);
+		}
+		if (ndataset > 0) {
+			IDataSet currentDataset = tempDataset.get(0);
+			fitAllFitFunctions.get(padCounter).setRange(min, max);
+
+			if (predef) {
+				callFitFunction();
+			}
+			DataFitter.fit(fitAllFitFunctions.get(padCounter), currentDataset, options);
+			fitAllFitFunctions.get(padCounter).setLineColor(2);
+			fitAllFitFunctions.get(padCounter).setLineWidth(5);
+			fitAllFitFunctions.get(padCounter).setLineStyle(1);
+			canvas.cd(padCounter);
+			canvas.draw(fitAllFitFunctions.get(padCounter), "same" + drawOption);
+
+			canvas.update();
+		}
+	}
 	JButton initFitALL(){
 		JButton fitAll = new JButton("Fit All");
 		fitAll.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// Construct options
-
-				int method = paramEstimationMethods.getSelectedIndex();
-				if (method == 0) {
-					options = "ER";
-				} else if (method == 1) {
-					options = "NR";
-				} else if (method == 2) {
-					options = "PR";
-				} else if (method == 3) {
-					options = "R";
-				} else if (method == 4) {
-					options = "LR";
-				}
+				changeOptions();
 				String drawOption = "";
 				for (int i = 0; i < optionCheckBoxes.size(); i++) {
 					if (optionCheckBoxes.get(0).isSelected()) {
@@ -256,110 +318,70 @@ public class FitPanel extends JPanel {
 					double min = canvas.getPad(padCounter).getAxisX().getMin();
 					double max = canvas.getPad(padCounter).getAxisX().getMax();
 					if (fitAllFitFunctions.size() != canvasPads.size()) {
+
 						fitAllFitFunctions.add(new F1D("f1",
 								predefFunctionsF1D[predefinedFunctionsSelector.getSelectedIndex()], min, max));
-					} else {
-						fitAllFitFunctions.set(padCounter, new F1D("f1",
+						setFilter(padCounter,drawOption,min,max);
+						continue;
+					}
+					fitAllFitFunctions.set(padCounter, new F1D("f1",
 								predefFunctionsF1D[predefinedFunctionsSelector.getSelectedIndex()], min, max));
-					}
-					ArrayList<IDataSet> tempDataset = new ArrayList<IDataSet>();
-					int ndataset = canvas.getPad(padCounter).getDatasetPlotters().size();
-					for (int i = 0; i < ndataset; i++) {
-						IDataSet ds = canvas.getPad(padCounter).getDatasetPlotters().get(i).getDataSet();
-						String name = ds.getName();
-						dataSetNames.add(name);
-						tempDataset.add(ds);
-					}
-					if (ndataset > 0) {
-						IDataSet currentDataset = tempDataset.get(0);
-						fitAllFitFunctions.get(padCounter).setRange(min, max);
+					setFilter(padCounter,drawOption,min,max);
 
-						if (predef) {
-							for (int i = 0; i < fitAllFitFunctions.get(padCounter).getNPars(); i++) {
-								if (i == 0) {
-									fitAllFitFunctions.get(padCounter).setParameter(0,
-											getMaxYIDataSet(currentDataset, min, max));
-								} else if (i == 1) {
-									fitAllFitFunctions.get(padCounter).setParameter(1,
-											getMeanIDataSet(currentDataset, min, max));
-								} else if (i == 2) {
-									fitAllFitFunctions.get(padCounter).setParameter(2,
-											getRMSIDataSet(currentDataset, min, max));
-									if (predefinedFunctionsSelector.getSelectedIndex() < 5)
-										fitFunction.setParLimits(2, 0.0, Double.MAX_VALUE);
-								} else if (i == 3) {
-									fitAllFitFunctions.get(padCounter).setParameter(3,
-											getAverageHeightIDataSet(currentDataset, min, max));
-								} else if (i > 3) {
-									fitAllFitFunctions.get(padCounter).setParameter(i, 1.0);
-								}
-
-							}
-						}
-						DataFitter.fit(fitAllFitFunctions.get(padCounter), currentDataset, options);
-						fitAllFitFunctions.get(padCounter).setLineColor(2);
-						fitAllFitFunctions.get(padCounter).setLineWidth(5);
-						fitAllFitFunctions.get(padCounter).setLineStyle(1);
-						canvas.cd(padCounter);
-						canvas.draw(fitAllFitFunctions.get(padCounter), "same" + drawOption);
-
-						canvas.update();
-					}
 				}
 
 			}
 		});
 		return fitAll;
 	}
+	private void changeVar(String drawOption){
+		drawOption = "";
+		for (int i = 0; i < optionCheckBoxes.size(); i++) {
+			if (optionCheckBoxes.get(0).isSelected()) {
+				drawOption = "S";
+			}
+			if (optionCheckBoxes.get(1).isSelected()) {
+				options = options + "Q";
+			}
+		}
+
+		fitFunction.setRange(currentRangeMin, currentRangeMax);
+	}
+	private void alterSets(){
+		for (int i = 0; i < fitFunction.getNPars(); i++) {
+			if (i == 0) {
+				fitFunction.setParameter(0,
+						getMaxYIDataSet(currentDataset, currentRangeMin, currentRangeMax));
+				continue;
+			} else if (i == 1) {
+				fitFunction.setParameter(1,
+						getMeanIDataSet(currentDataset, currentRangeMin, currentRangeMax));
+				continue;
+			} else if (i == 2) {
+				fitFunction.setParameter(2,
+						getRMSIDataSet(currentDataset, currentRangeMin, currentRangeMax));
+				continue;
+			} else if (i == 3) {
+				fitFunction.setParameter(3,
+						getAverageHeightIDataSet(currentDataset, currentRangeMin, currentRangeMax));
+				continue;
+			}
+			fitFunction.setParameter(i, 1.0);
+
+			System.out.println("Paramter " + i + " =" + fitFunction.getParameter(i));
+
+		}
+	}
 	JButton initFitButton(){
 		JButton fit = new JButton("Fit");
 		fit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// Construct options
-				int method = paramEstimationMethods.getSelectedIndex();
-				if (method == 0) {
-					options = "ER";
-				} else if (method == 1) {
-					options = "NR";
-				} else if (method == 2) {
-					options = "PR";
-				} else if (method == 3) {
-					options = "R";
-				} else if (method == 4) {
-					options = "LR";
-				}
-				String drawOption = "";
-				for (int i = 0; i < optionCheckBoxes.size(); i++) {
-					if (optionCheckBoxes.get(0).isSelected()) {
-						drawOption = "S";
-					}
-					if (optionCheckBoxes.get(1).isSelected()) {
-						options = options + "Q";
-					}
-				}
-
-				fitFunction.setRange(currentRangeMin, currentRangeMax);
+				changeOptions();
+				String drawOption = new String();
+				changeVar(drawOption);
 				if (predef && !parameterPanel.modified()) {
-					for (int i = 0; i < fitFunction.getNPars(); i++) {
-						if (i == 0) {
-							fitFunction.setParameter(0,
-									getMaxYIDataSet(currentDataset, currentRangeMin, currentRangeMax));
-						} else if (i == 1) {
-							fitFunction.setParameter(1,
-									getMeanIDataSet(currentDataset, currentRangeMin, currentRangeMax));
-						} else if (i == 2) {
-							fitFunction.setParameter(2,
-									getRMSIDataSet(currentDataset, currentRangeMin, currentRangeMax));
-						} else if (i == 3) {
-							fitFunction.setParameter(3,
-									getAverageHeightIDataSet(currentDataset, currentRangeMin, currentRangeMax));
-						} else if (i > 3) {
-							fitFunction.setParameter(i, 1.0);
-						}
-						System.out.println("Paramter " + i + " =" + fitFunction.getParameter(i));
-
-					}
+					alterSets();
 				}
 				System.out.println("Fitting!");
 				DataFitter.fit(fitFunction, currentDataset, options);

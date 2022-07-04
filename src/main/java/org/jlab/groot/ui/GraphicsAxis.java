@@ -170,38 +170,40 @@ public class GraphicsAxis {
         }
         return minorTicks;
     }
-    
+    private void setMinorTicks(List<Double>  minorTicks){
+        double cTick = axisLabels.getTicks().get(0);
+        double nTick = axisLabels.getTicks().get(1);
+        double step  = Math.abs(nTick-cTick)/4.0;
+
+        for(int i = 0; i < nticks-1; i++){
+            cTick = axisLabels.getTicks().get(i);
+            nTick = axisLabels.getTicks().get(i+1);
+            for(int m = 0; m < 3; m++){
+                minorTicks.add(cTick+step*(m+1));
+            }
+        }
+
+        cTick = nTick;
+        int ncount = 0;
+        while(cTick<this.axisRange.getMax()&&ncount<10){
+            cTick += step;
+            if(cTick<axisRange.getMax()) minorTicks.add(cTick);
+            ncount++;
+        }
+
+        cTick = axisLabels.getTicks().get(0);
+        ncount = 0;
+        while(cTick>axisRange.getMin()&&ncount<10){
+            cTick -= step;
+            if(cTick>axisRange.getMin()) minorTicks.add(cTick);
+        }
+    }
     private List<Double> getAxisMinorTicksLinear(){
         
         int nticks = this.axisLabels.getTicks().size();
         List<Double>  minorTicks = new ArrayList<Double>();
         if(nticks>=2){
-            double cTick = axisLabels.getTicks().get(0);
-            double nTick = axisLabels.getTicks().get(1);
-            double step  = Math.abs(nTick-cTick)/4.0;
-            
-            for(int i = 0; i < nticks-1; i++){
-                cTick = axisLabels.getTicks().get(i);
-                nTick = axisLabels.getTicks().get(i+1);                
-                for(int m = 0; m < 3; m++){
-                    minorTicks.add(cTick+step*(m+1));
-                }
-            }
-            
-            cTick = nTick;
-            int ncount = 0;
-            while(cTick<this.axisRange.getMax()&&ncount<10){
-                cTick += step;
-                if(cTick<axisRange.getMax()) minorTicks.add(cTick);
-                ncount++;
-            }
-            
-            cTick = axisLabels.getTicks().get(0);
-            ncount = 0;
-            while(cTick>axisRange.getMin()&&ncount<10){
-                cTick -= step;
-                if(cTick>axisRange.getMin()) minorTicks.add(cTick);
-            }
+            setMinorTicks(minorTicks);
         }
         return minorTicks;
     }

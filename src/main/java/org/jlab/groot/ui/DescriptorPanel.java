@@ -537,10 +537,72 @@ public class DescriptorPanel extends JPanel {
 		validateExpression(0);
 		validateExpression(1);
 	}
+	private boolean setTreeOptionsX(){
+		try {
 
-	private void validateExpression(int i) {
-		String cuts = "";
-		boolean xPassed = false;
+			this.tree.scanTree(this.branchVariableFieldX.getText(), cuts, 1000, true);
+			//System.out.println("Preview: "+ this.branchVariableFieldX.getText()+" "+cuts+" "+1000+" " +true);
+			List<DataVector> vecs = this.tree.getScanResults();
+			if (this.estimateCheckBox.isSelected()) {
+				if (vecs.size() >= 1) {
+					this.minTextFieldX.setText(String.format("%4.2f", vecs.get(0).getMin()));
+					this.maxTextFieldX.setText(String.format("%4.2f", vecs.get(0).getMax()));
+					this.binTextFieldX.setText(String.format("%d", vecs.get(0).getBinSuggestion()));
+				}
+			}
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+
+	}
+	private boolean setTreeOptionsY(){
+		try {
+			this.tree.scanTree(this.branchVariableFieldY.getText(), cuts, 1000, true);
+			if (this.estimateCheckBox.isSelected()) {
+				List<DataVector> vecs = this.tree.getScanResults();
+				if (vecs.size() >= 1) {
+					this.minTextFieldY.setText(String.format("%4.2f", vecs.get(0).getMin()));
+					this.maxTextFieldY.setText(String.format("%4.2f", vecs.get(0).getMax()));
+					this.binTextFieldY.setText(String.format("%d", vecs.get(0).getBinSuggestion()));
+				}
+			}
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+
+	}
+	private void continueValidationOptionsX(){
+
+		validationPlaceHolderX.setIcon(xIcon);
+		validationPlaceHolderX.repaint();
+		if (this.estimateCheckBox.isSelected()) {
+			this.minTextFieldX.setText("");
+			this.maxTextFieldX.setText("");
+			this.binTextFieldX.setText("");
+		}
+		//System.out.println("X Validation Failed");
+		 else {
+		validationPlaceHolderX.setIcon(checkIcon);
+		validationPlaceHolderX.repaint();
+		if (this.previewCheckBox.isSelected()) {
+		drawPreviewHistogram();
+		}
+		//System.out.println("X Validation Succeeded");
+		}
+
+	}
+	private void continueValidationOptionsY(){
+					validationPlaceHolderY.setIcon(xIcon);
+							validationPlaceHolderY.repaint();
+							if (this.estimateCheckBox.isSelected()) {
+							this.minTextFieldY.setText("");
+							this.maxTextFieldY.setText("");
+							this.binTextFieldY.setText("");
+							}
+	}
+	private void insertCuts(String cuts){
 		for (int j = 0; j < cutBoxes.size(); j++) {
 			if (cutBoxes.get(j).isSelected()) {
 				if (cuts == "") {
@@ -550,72 +612,29 @@ public class DescriptorPanel extends JPanel {
 				}
 			}
 		}
-		//System.out.println("cuts:[" + cuts + "]");
+	}
+	private void validateExpression(int i) {
+		String cuts = "";
+		boolean xPassed = false;
+		insertCuts(cuts);
 		if (i == 0 || i==1) {
 			boolean passed = TreeExpression.validateExpression(this.branchVariableFieldX.getText(),
 					this.tree.getListOfBranches());
 			if (passed) {
-				try {
-
-					this.tree.scanTree(this.branchVariableFieldX.getText(), cuts, 1000, true);
-					//System.out.println("Preview: "+ this.branchVariableFieldX.getText()+" "+cuts+" "+1000+" " +true);
-					List<DataVector> vecs = this.tree.getScanResults();
-					if (this.estimateCheckBox.isSelected()) {
-						if (vecs.size() >= 1) {
-							this.minTextFieldX.setText(String.format("%4.2f", vecs.get(0).getMin()));
-							this.maxTextFieldX.setText(String.format("%4.2f", vecs.get(0).getMax()));
-							this.binTextFieldX.setText(String.format("%d", vecs.get(0).getBinSuggestion()));
-						}
-					}
-				} catch (Exception e) {
-					passed = false;
-				}
+				passed = setTreeOptionsX();
 			}
 			if (!passed) {
-				validationPlaceHolderX.setIcon(xIcon);
-				validationPlaceHolderX.repaint();
-				if (this.estimateCheckBox.isSelected()) {
-					this.minTextFieldX.setText("");
-					this.maxTextFieldX.setText("");
-					this.binTextFieldX.setText("");
-				}
-				//System.out.println("X Validation Failed");
-			} else {
-				validationPlaceHolderX.setIcon(checkIcon);
-				validationPlaceHolderX.repaint();
-				if (this.previewCheckBox.isSelected()) {
-					drawPreviewHistogram();
-				}
-				//System.out.println("X Validation Succeeded");
+				continueValidationOptionsX();
 			}
 		}
 		if (i == 1) {
 			boolean passed = TreeExpression.validateExpression(this.branchVariableFieldY.getText(),
 					this.tree.getListOfBranches());
 			if (passed) {
-				try {
-					this.tree.scanTree(this.branchVariableFieldY.getText(), cuts, 1000, true);
-					if (this.estimateCheckBox.isSelected()) {
-						List<DataVector> vecs = this.tree.getScanResults();
-						if (vecs.size() >= 1) {
-							this.minTextFieldY.setText(String.format("%4.2f", vecs.get(0).getMin()));
-							this.maxTextFieldY.setText(String.format("%4.2f", vecs.get(0).getMax()));
-							this.binTextFieldY.setText(String.format("%d", vecs.get(0).getBinSuggestion()));
-						}
-					}
-				} catch (Exception e) {
-					passed = false;
-				}
+				passed = setTreeOptionsY();
 			}
 			if (!passed) {
-				validationPlaceHolderY.setIcon(xIcon);
-				validationPlaceHolderY.repaint();
-				if (this.estimateCheckBox.isSelected()) {
-					this.minTextFieldY.setText("");
-					this.maxTextFieldY.setText("");
-					this.binTextFieldY.setText("");
-				}
-				//System.out.println("Y Validation Failed");
+				continueValidationOptionsY();
 			} else {
 				validationPlaceHolderY.setIcon(checkIcon);
 				validationPlaceHolderY.repaint();
