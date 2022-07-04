@@ -148,9 +148,8 @@ public class PaveText {
                  min,
                 max
                 );
-        this.paveDimension.getDimension(1).setMinMax(
-                paveDimension.getDimension(1).getMin(), 
-                paveDimension.getDimension(1).getMin() + ySpacing*this.paveTexts.size()
+        int dimention = paveDimension.getDimension(1).getMin();
+        this.paveDimension.getDimension(1).setMinMax(dimention, dimention + ySpacing*this.paveTexts.size()
         );
         //ySpacing = (int) (1.2*height/this.paveTexts.size());
         /*System.out.println("HEIGHT = " + height + "  spacing = " + ySpacing);
